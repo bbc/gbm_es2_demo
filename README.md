@@ -2,37 +2,65 @@
 * Example OpenGL ES2 demo using GBM and DRM (KMS) modesetting
 * This shows how ChromeOS renders GLES2 contents on the screen.
 * It uses OpenGL ES2/3 without X11 dependency, so it fits pretty good with the embedded devices world.
-
-![Alt text](https://github.com/ds-hwang/gbm_es2_demo/blob/master/images/screenshot.jpg "dma_buf_mmap_demo screenshot")
+* Forked from the original with support for the Raspberry Pi.
 
 # Build
-* If you are on Ubuntu, first make sure you have the dependencies installed
+## Dependencies
+Using Raspbian Lite or Ubuntu, first make sure you have the dependencies installed
 ```
-> sudo apt-get install libgles2-mesa-dev libgbm-dev
+$ sudo apt-get install libgles2-mesa-dev libgbm-dev
 ```
 
+### Raspbian
+For Raspbian, the Debian package for `libdrm-dev` is outdated (2.4.97) so we need to build 2.4.100 from source.
+Fetch and unpack the source:
 ```
-> mkdir build; cd build
-> cmake ../
-> make
+$ wget https://dri.freedesktop.org/libdrm/libdrm-2.4.100.tar.bz2
+$ mkdir libdrm
+$ tar xjvf libdrm-2.4.100.tar.bz2 -C libdrm --strip-components 1
+$ rm libdrm-2.4.100.tar.bz2
+```
+Prepare build:
+```
+mkdir libdrm/build && cd libdrm/build
+meson --prefix=$XORG_PREFIX -Dudev=true
+```
+If `$XORG_PREFIX` is not set, it should be `/usr`
+
+Build and install:
+```
+ninja -j4
+sudo ninja install
+```
+
+## Build demo
+Finally, build the demo:
+```
+$ mkdir build; cd build
+$ cmake ../
+$ make
 ```
 
 # Run
-* I have successfully ran it on Ubuntu, ChromeOS and Yocto.
+* Original has been successfully run on Ubuntu, ChromeOS and Yocto.
+* Has not been successfully run on a Raspberry Pi, yet.
 
 ## Ubuntu
-* Go to tty1 with Ctrl + Alt + F1
-* Kill gdm or lightdm because they are DRM master now. This demo has to be DRM master.
+Go to tty1 with Ctrl + Alt + F1
+Kill gdm or lightdm because they are DRM master now. This demo has to be DRM master.
 ```
-> sudo service lightdm stop
+$ sudo service lightdm stop
 ```
 
-* Run the demo
+Run the demo:
 ```
-> gbm_es2_demo
+$ gbm_es2_demo
 or
-> gbm_es2_demo -M # mmap test
+$ gbm_es2_demo -M # mmap test
 ```
+
+## Raspbian Lite
+Has not been successfuly run yet.
 
 ## Yocto
 * The easiest way to build embedded linux image is to use Yocto.
@@ -61,7 +89,7 @@ or
 * The style complying with [Chromium’s style guide](http://www.chromium.org/developers/coding-style)
 * Before submitting a patch, always run `clang-format`
 ```
-> clang-format-5.0 -i `find . -name "*.cpp" -o -name "*.h"`
+$ clang-format-5.0 -i `find . -name "*.cpp" -o -name "*.h"`
 ```
 
 # Reference

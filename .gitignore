@@ -58,3 +58,6 @@ TAGS
 *.exe
 *.out
 *.app
+
+# Build dir
+build/
